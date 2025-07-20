@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÇözKazan Yönetim Paneli</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #eef1f5; /* Sayfanın genel arkaplanı */
+            color: #333;
+            padding-top: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #ffffff; /* Varsayılan arkaplan */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.5s ease;
+        }
+        
+        .admin-back-link {
+            display: block;
+            text-align: right;
+            margin-bottom: -20px; /* Başlıkla hizalamak için */
+            font-weight: 600;
+            color: #6c757d;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .admin-back-link:hover {
+            color: #34495e;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .breadcrumb-container {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .breadcrumb-container a, .breadcrumb-container span {
+            font-size: 1.1rem;
+            text-decoration: none;
+            color: #3498db;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb-container a:hover {
+            color: #2980b9;
+        }
+
+        .breadcrumb-container span {
+            color: #7f8c8d;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .btn-custom {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            text-align: center;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Renkler */
+        .btn-sinif { background-color: #3498db; }
+        .btn-ders { background-color: #2ecc71; }
+        .btn-konu { background-color: #9b59b6; }
+        .btn-alt-konu { background-color: #f1c40f; color: #333; }
+        .btn-test { background-color: #e67e22; }
+
+        /* Dinamik ve Yanar Dönerli Renkler */
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container.view-siniflar {
+            background: linear-gradient(-45deg, #3498db, #2980b9, #a9cce3);
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+        }
+        .view-siniflar .section-title, .view-siniflar .breadcrumb-container a, .view-siniflar .breadcrumb-container span, .view-siniflar h1 { color: #fff; }
+        .view-siniflar .breadcrumb-container { border-bottom-color: rgba(255,255,255,0.3); }
+
+
+        .container.view-dersler {
+            background: linear-gradient(-45deg, #2ecc71, #27ae60, #a3e4d7);
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+        }
+        .view-dersler .section-title, .view-dersler .breadcrumb-container a, .view-dersler .breadcrumb-container span, .view-dersler h1 { color: #fff; }
+        .view-dersler .breadcrumb-container { border-bottom-color: rgba(255,255,255,0.3); }
+
+        .container.view-konular {
+            background: linear-gradient(-45deg, #9b59b6, #8e44ad, #d7bde2);
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+        }
+        .view-konular .section-title, .view-konular .breadcrumb-container a, .view-konular .breadcrumb-container span, .view-konular h1 { color: #fff; }
+        .view-konular .breadcrumb-container { border-bottom-color: rgba(255,255,255,0.3); }
+
+    </style>
+</head>
+<body>
+    <div class="container" id="main-container">
+        <a href="/admin" class="admin-back-link">← Ana Panele Dön</a>
+        <h1>Yönetim Paneli</h1>
+        <div class="breadcrumb-container" id="breadcrumb-container">
+            <!-- Breadcrumb buraya dinamik olarak eklenecek -->
+        </div>
+
+        <!-- Test Yönetimi İstatistikleri -->
+        <div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px; color: white;">
+            <h3 style="margin-bottom: 15px; font-size: 1.3rem;">🚀 Test Yönetimi</h3>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 18px 28px; min-width: 160px; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: bold;" id="istatistik-toplam-test">...</div>
+                    <div style="font-size: 1rem; opacity: 0.85;">Toplam Test</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 18px 28px; min-width: 160px; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: bold;" id="istatistik-toplam-havuz">...</div>
+                    <div style="font-size: 1rem; opacity: 0.85;">Test Havuzu</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 18px 28px; min-width: 160px; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: bold;" id="istatistik-toplam-soru">...</div>
+                    <div style="font-size: 1rem; opacity: 0.85;">Toplam Soru</div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <script>
+        // Sayfa yüklendiğinde istatistikleri çek
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const [testRes, havuzRes, soruRes] = await Promise.all([
+                    fetch('/api/toplam-test'),
+                    fetch('/api/test-havuzlari'),
+                    fetch('/api/toplam-soru')
+                ]);
+                const testData = await testRes.json();
+                const havuzlar = await havuzRes.json();
+                const soruData = await soruRes.json();
+                
+                document.getElementById('istatistik-toplam-test').textContent = testData.toplamTest;
+                document.getElementById('istatistik-toplam-havuz').textContent = havuzlar.length;
+                document.getElementById('istatistik-toplam-soru').textContent = soruData.toplamSoru;
+            } catch (e) {
+                console.error('İstatistik yükleme hatası:', e);
+                document.getElementById('istatistik-toplam-test').textContent = '-';
+                document.getElementById('istatistik-toplam-havuz').textContent = '-';
+                document.getElementById('istatistik-toplam-soru').textContent = '-';
+            }
+        });
+        </script>
+
+        <div id="sinif-listesi-container">
+            <h2 class="section-title">Sınıflar</h2>
+            <div id="sinif-listesi" class="button-grid"></div>
+        </div>
+
+        <!-- Dersler Bölümü (En Üstte) -->
+        <div id="ders-listesi-container" style="display:none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 class="section-title">📚 Dersler</h2>
+                <button id="siniflara-don-btn" class="btn-custom" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600;">
+                    ← Sınıflara Dön
+                </button>
+            </div>
+            <div id="ders-listesi" class="button-grid"></div>
+        </div>
+
+        <!-- Sınıf İstatistikleri Bölümü -->
+        <div id="sinif-istatistikleri-container" style="display:none;">
+            <h2 class="section-title">📊 Sınıf İstatistikleri</h2>
+            
+            <!-- İstatistik Kartları -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center; color: white;">
+                    <div style="font-size: 2rem; font-weight: bold;" id="istatistik-cozulen-test">0</div>
+                    <div style="font-size: 1rem; opacity: 0.85;">Çözülen Test</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center; color: white;">
+                    <div style="font-size: 2rem; font-weight: bold;" id="istatistik-basari-orani">0%</div>
+                    <div style="font-size: 1rem; opacity: 0.85;">Başarı Oranı</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center; color: white;">
+                    <div style="font-size: 2rem; font-weight: bold;" id="istatistik-cozulen-soru">0</div>
+                    <div style="font-size: 1rem; opacity: 0.85;">Çözülen Soru</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center; color: white;">
+                    <div style="font-size: 2rem; font-weight: bold;" id="istatistik-kazanilan-xp">0</div>
+                    <div style="font-size: 1rem; opacity: 0.85;">Kazanılan XP</div>
+                </div>
+            </div>
+
+            <!-- Grafik Alanı -->
+            <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: white; margin-bottom: 15px;">📊 Test Çözme Grafiği</h3>
+                <canvas id="test-grafik" width="800" height="400" style="background: white; border-radius: 8px;"></canvas>
+            </div>
+
+            <!-- Detaylı İstatistikler -->
+            <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: white; margin-bottom: 15px;">📋 Detaylı İstatistikler</h3>
+                <div id="detayli-istatistikler" style="color: white;">
+                    <!-- Detaylar buraya yüklenecek -->
+                </div>
+            </div>
+
+            <!-- Tarih Filtreleme (En Altta) -->
+            <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px;">
+                <h3 style="color: white; margin-bottom: 15px;">🔍 Tarih Filtreleme</h3>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <label style="color: white; font-weight: bold;">Periyot:</label>
+                    <select id="periyot-select" style="padding: 8px; border-radius: 5px; border: none;">
+                        <option value="gunluk">Günlük</option>
+                        <option value="haftalik">Haftalık</option>
+                        <option value="aylik">Aylık</option>
+                    </select>
+                    
+                    <label style="color: white; font-weight: bold; margin-left: 20px;">Tarih Aralığı:</label>
+                    <input type="date" id="baslangic-tarih" style="padding: 8px; border-radius: 5px; border: none;">
+                    <span style="color: white;">-</span>
+                    <input type="date" id="bitis-tarih" style="padding: 8px; border-radius: 5px; border: none;">
+                    <button id="tarih-filtrele" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Filtrele</button>
+                    <button id="filtre-temizle" style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">Temizle</button>
+                </div>
+                <div style="margin-top: 10px; color: white; font-size: 0.9rem; opacity: 0.8;">
+                    💡 Bu filtre tüm sınıf, ders, konu ve test verilerini etkiler. Aktif filtreler yeşil renkte gösterilir.
+                </div>
+            </div>
+        </div>
+
+        <div id="konu-listesi-container" style="display:none;">
+            <h2 class="section-title">Konular</h2>
+            <div id="konu-listesi" class="button-grid"></div>
+        </div>
+
+        <div id="alt-konu-listesi-container" style="display:none;">
+            <h2 class="section-title">Alt Konular</h2>
+            <div id="alt-konu-listesi" class="button-grid"></div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sinifListesi = document.getElementById('sinif-listesi');
+            const dersListesi = document.getElementById('ders-listesi');
+            const konuListesi = document.getElementById('konu-listesi');
+            const altKonuListesi = document.getElementById('alt-konu-listesi');
+
+            const sinifContainer = document.getElementById('sinif-listesi-container');
+            const dersContainer = document.getElementById('ders-listesi-container');
+            const konuContainer = document.getElementById('konu-listesi-container');
+            const altKonuContainer = document.getElementById('alt-konu-listesi-container');
+
+            const breadcrumbContainer = document.getElementById('breadcrumb-container');
+            const mainContainer = document.getElementById('main-container');
+
+            function updateBreadcrumb(items) {
+                breadcrumbContainer.innerHTML = '';
+                items.forEach((item, index) => {
+                    if (index > 0) {
+                        breadcrumbContainer.innerHTML += ' / ';
+                    }
+                    if (item.link) {
+                        const link = document.createElement('a');
+                        link.href = '#';
+                        link.textContent = item.text;
+                        link.style.cursor = 'pointer';
+                        link.style.color = '#667eea';
+                        link.style.textDecoration = 'underline';
+                        link.onclick = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            try {
+                                item.link();
+                            } catch (error) {
+                                console.error('Breadcrumb link hatası:', error);
+                                // Fallback: Sınıflar sayfasına dön
+                                fetchAndDisplaySiniflar();
+                            }
+                        };
+                        breadcrumbContainer.appendChild(link);
+                    } else {
+                        const span = document.createElement('span');
+                        span.textContent = item.text;
+                        breadcrumbContainer.appendChild(span);
+                    }
+                });
+            }
+
+            function setView(viewName) {
+                mainContainer.className = 'container'; // reset classes
+                mainContainer.classList.add(viewName);
+            }
+
+            async function fetchAndDisplaySiniflar() {
+                setView('view-siniflar');
+                console.log("Sınıflar isteniyor...");
+                const response = await fetch('/api/siniflar');
+                const siniflar = await response.json();
+                sinifListesi.innerHTML = '';
+                siniflar.forEach(sinif => {
+                    const button = document.createElement('button');
+                    button.textContent = sinif.ad;
+                    button.className = 'btn-custom btn-sinif';
+                    button.onclick = () => fetchAndDisplayDersler(sinif.id, sinif.ad);
+                    sinifListesi.appendChild(button);
+                });
+                sinifContainer.style.display = 'block';
+                dersContainer.style.display = 'none';
+                konuContainer.style.display = 'none';
+                altKonuContainer.style.display = 'none';
+                document.getElementById('sinif-istatistikleri-container').style.display = 'none';
+                updateBreadcrumb([{ text: 'Tüm Sınıflar' }]);
+            }
+
+            async function showSinifIstatistikleri(sinifId, sinifAdi) {
+                setView('view-siniflar');
+                setCurrentSinifId(sinifId);
+                
+                sinifContainer.style.display = 'none';
+                dersContainer.style.display = 'none';
+                konuContainer.style.display = 'none';
+                altKonuContainer.style.display = 'none';
+                document.getElementById('sinif-istatistikleri-container').style.display = 'block';
+                
+                updateBreadcrumb([
+                    { text: 'Sınıflar', link: fetchAndDisplaySiniflar },
+                    { text: sinifAdi }
+                ]);
+
+                // İstatistikleri yükle
+                await loadSinifIstatistikleri(sinifId);
+                
+                // Dersler butonunu ekle
+                const derslerButton = document.createElement('button');
+                derslerButton.textContent = '📚 Derslere Git';
+                derslerButton.className = 'btn-custom btn-ders';
+                derslerButton.style.marginTop = '20px';
+                derslerButton.onclick = () => fetchAndDisplayDersler(sinifId, sinifAdi);
+                document.getElementById('sinif-istatistikleri-container').appendChild(derslerButton);
+            }
+
+            async function loadSinifIstatistikleri(sinifId) {
+                try {
+                    let url = `/api/istatistikler/${sinifId}?periyot=${currentFilters.periyot}`;
+                    if (currentFilters.aktif) {
+                        url += `&baslangic=${currentFilters.baslangic}&bitis=${currentFilters.bitis}`;
+                    }
+                    
+                    const response = await fetch(url);
+                    const istatistikler = await response.json();
+                    
+                    // İstatistikleri hesapla
+                    const toplamIstatistik = calculateToplamIstatistik(istatistikler);
+                    
+                    // Kartları güncelle
+                    document.getElementById('istatistik-cozulen-test').textContent = toplamIstatistik.cozulenTest;
+                    document.getElementById('istatistik-basari-orani').textContent = toplamIstatistik.basariOrani + '%';
+                    document.getElementById('istatistik-cozulen-soru').textContent = toplamIstatistik.cozulenSoru;
+                    document.getElementById('istatistik-kazanilan-xp').textContent = toplamIstatistik.kazanilanXP;
+                    
+                    // Filtre durumuna göre renk değiştir
+                    const kartlar = document.querySelectorAll('#sinif-istatistikleri-container .btn-custom');
+                    kartlar.forEach(kart => {
+                        if (currentFilters.aktif) {
+                            kart.style.background = '#4CAF50';
+                        } else {
+                            kart.style.background = '#2196F3';
+                        }
+                    });
+                    
+                    // Grafik çiz
+                    drawTestGraph(istatistikler);
+                    
+                    // Detaylı istatistikleri göster
+                    showDetailedStats(toplamIstatistik);
+                    
+                } catch (error) {
+                    console.error('İstatistik yükleme hatası:', error);
+                }
+            }
+
+            function calculateToplamIstatistik(istatistikler) {
+                return istatistikler.reduce((toplam, istatistik) => {
+                    return {
+                        cozulenTest: toplam.cozulenTest + istatistik.cozulenTestSayisi,
+                        basariliTest: toplam.basariliTest + istatistik.basariliTestSayisi,
+                        cozulenSoru: toplam.cozulenSoru + istatistik.cozulenSoruSayisi,
+                        kazanilanXP: toplam.kazanilanXP + istatistik.kazanilanXP,
+                        toplamSure: toplam.toplamSure + istatistik.toplamSure
+                    };
+                }, {
+                    cozulenTest: 0,
+                    basariliTest: 0,
+                    cozulenSoru: 0,
+                    kazanilanXP: 0,
+                    toplamSure: 0
+                });
+            }
+
+            function drawTestGraph(istatistikler) {
+                const canvas = document.getElementById('test-grafik');
+                const ctx = canvas.getContext('2d');
+                
+                // Canvas'ı temizle
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (istatistikler.length === 0) {
+                    ctx.fillStyle = '#666';
+                    ctx.font = '20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Henüz istatistik verisi yok', canvas.width / 2, canvas.height / 2);
+                    return;
+                }
+                
+                // Grafik çizimi (basit çubuk grafik)
+                const barWidth = canvas.width / istatistikler.length - 10;
+                const maxValue = Math.max(...istatistikler.map(i => i.cozulenTestSayisi));
+                
+                istatistikler.forEach((istatistik, index) => {
+                    const x = index * (barWidth + 10) + 50;
+                    const height = (istatistik.cozulenTestSayisi / maxValue) * (canvas.height - 100);
+                    const y = canvas.height - height - 50;
+                    
+                    // Çubuk çiz
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.fillRect(x, y, barWidth, height);
+                    
+                    // Tarih etiketi
+                    ctx.fillStyle = '#333';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    const tarih = new Date(istatistik.tarih).toLocaleDateString('tr-TR');
+                    ctx.fillText(tarih, x + barWidth / 2, canvas.height - 20);
+                    
+                    // Değer etiketi
+                    ctx.fillText(istatistik.cozulenTestSayisi, x + barWidth / 2, y - 10);
+                });
+            }
+
+            function showDetailedStats(istatistik) {
+                const detayDiv = document.getElementById('detayli-istatistikler');
+                const basariOrani = istatistik.cozulenTest > 0 ? 
+                    ((istatistik.basariliTest / istatistik.cozulenTest) * 100).toFixed(1) : 0;
+                const ortalamaSure = istatistik.cozulenTest > 0 ? 
+                    (istatistik.toplamSure / istatistik.cozulenTest / 60).toFixed(1) : 0;
+                
+                detayDiv.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>Toplam Çözülen Test:</strong> ${istatistik.cozulenTest}</div>
+                        <div><strong>Başarılı Test:</strong> ${istatistik.basariliTest}</div>
+                        <div><strong>Başarı Oranı:</strong> ${basariOrani}%</div>
+                        <div><strong>Toplam Çözülen Soru:</strong> ${istatistik.cozulenSoru}</div>
+                        <div><strong>Kazanılan XP:</strong> ${istatistik.kazanilanXP}</div>
+                        <div><strong>Ortalama Süre:</strong> ${ortalamaSure} dakika</div>
+                    </div>
+                `;
+            }
+
+            async function fetchAndDisplayDersler(sinifId, sinifAdi) {
+                setView('view-dersler');
+                setCurrentSinifId(sinifId);
+                
+                console.log(`Dersler isteniyor... URL: /api/dersler?sinifId=${sinifId}`);
+                const response = await fetch(`/api/dersler?sinifId=${sinifId}`);
+                const dersler = await response.json();
+                dersListesi.innerHTML = '';
+                dersler.forEach(ders => {
+                    const button = document.createElement('button');
+                    button.textContent = ders.ad;
+                    button.className = 'btn-custom btn-ders';
+                    button.onclick = () => fetchAndDisplayKonular(ders.id, sinifId, sinifAdi, ders.ad);
+                    dersListesi.appendChild(button);
+                });
+                
+                // Dersler en üstte, istatistikler ortada
+                sinifContainer.style.display = 'none';
+                dersContainer.style.display = 'block';
+                konuContainer.style.display = 'none';
+                altKonuContainer.style.display = 'none';
+                document.getElementById('sinif-istatistikleri-container').style.display = 'none';
+                
+                updateBreadcrumb([
+                    { text: '← Sınıflara Dön', link: () => {
+                        // Sınıflar sayfasına dön ve istatistikleri gizle
+                        fetchAndDisplaySiniflar();
+                        document.getElementById('sinif-istatistikleri-container').style.display = 'none';
+                    }},
+                    { text: sinifAdi }
+                ]);
+
+                // Sınıf istatistiklerini yükle ve göster
+                await loadSinifIstatistikleri(sinifId);
+                document.getElementById('sinif-istatistikleri-container').style.display = 'block';
+                
+                // Filtreleme sistemini başlat
+                updateFilterUI();
+                
+                // Sınıflara Dön butonuna event listener ekle
+                const siniflaraDonBtn = document.getElementById('siniflara-don-btn');
+                if (siniflaraDonBtn) {
+                    siniflaraDonBtn.onclick = () => {
+                        fetchAndDisplaySiniflar();
+                        document.getElementById('sinif-istatistikleri-container').style.display = 'none';
+                    };
+                }
+            }
+
+            async function fetchAndDisplayKonular(dersId, sinifId, sinifAdi, dersAdi) {
+                setView('view-konular');
+                console.log(`Konular isteniyor... URL: /api/konular?dersId=${dersId}`);
+                const response = await fetch(`/api/konular?dersId=${dersId}`);
+                const konular = await response.json();
+                konuListesi.innerHTML = '';
+                konular.forEach(konu => {
+                    const button = document.createElement('button');
+                    button.textContent = konu.ad;
+                    button.className = 'btn-custom btn-konu';
+                    // Konuya tıklandığında test yönetimi sayfasına yönlendirme
+                    button.onclick = () => {
+                        const yonetimUrl = `/test-yonetim.html?id=${konu.id}&sinifId=${sinifId}&dersId=${dersId}&sinifAdi=${encodeURIComponent(sinifAdi)}&dersAdi=${encodeURIComponent(dersAdi)}&konuAdi=${encodeURIComponent(konu.ad)}`;
+                        window.location.href = yonetimUrl;
+                    };
+                    konuListesi.appendChild(button);
+                });
+
+                sinifContainer.style.display = 'none';
+                dersContainer.style.display = 'none';
+                konuContainer.style.display = 'block';
+                altKonuContainer.style.display = 'none';
+                document.getElementById('sinif-istatistikleri-container').style.display = 'none';
+                
+                updateBreadcrumb([
+                    { text: '← Sınıflara Dön', link: fetchAndDisplaySiniflar },
+                    { text: sinifAdi, link: () => fetchAndDisplayDersler(sinifId, sinifAdi) },
+                    { text: dersAdi }
+                ]);
+            }
+
+            // Global filtre durumu
+            let currentFilters = {
+                periyot: 'gunluk',
+                baslangic: null,
+                bitis: null,
+                aktif: false
+            };
+
+            // Event listener'ları ekle
+            document.getElementById('periyot-select').addEventListener('change', () => {
+                currentFilters.periyot = document.getElementById('periyot-select').value;
+                applyFilters();
+            });
+
+            document.getElementById('tarih-filtrele').addEventListener('click', () => {
+                const baslangic = document.getElementById('baslangic-tarih').value;
+                const bitis = document.getElementById('bitis-tarih').value;
+                
+                if (baslangic && bitis) {
+                    currentFilters.baslangic = baslangic;
+                    currentFilters.bitis = bitis;
+                    currentFilters.aktif = true;
+                    updateFilterUI();
+                    applyFilters();
+                } else {
+                    alert('Lütfen başlangıç ve bitiş tarihlerini seçin.');
+                }
+            });
+
+            document.getElementById('filtre-temizle').addEventListener('click', () => {
+                clearFilters();
+            });
+
+            // Mevcut sınıf ID'sini takip etmek için
+            let currentSinifId = null;
+
+            function getCurrentSinifId() {
+                return currentSinifId;
+            }
+
+            function setCurrentSinifId(sinifId) {
+                currentSinifId = sinifId;
+            }
+
+            function updateFilterUI() {
+                const filtreleBtn = document.getElementById('tarih-filtrele');
+                const temizleBtn = document.getElementById('filtre-temizle');
+                
+                if (currentFilters.aktif) {
+                    filtreleBtn.style.background = '#4CAF50';
+                    filtreleBtn.textContent = '✅ Filtre Aktif';
+                    temizleBtn.style.display = 'inline-block';
+                } else {
+                    filtreleBtn.style.background = '#2196F3';
+                    filtreleBtn.textContent = 'Filtrele';
+                    temizleBtn.style.display = 'none';
+                }
+            }
+
+            function clearFilters() {
+                currentFilters.baslangic = null;
+                currentFilters.bitis = null;
+                currentFilters.aktif = false;
+                document.getElementById('baslangic-tarih').value = '';
+                document.getElementById('bitis-tarih').value = '';
+                updateFilterUI();
+                applyFilters();
+            }
+
+            function applyFilters() {
+                const sinifId = getCurrentSinifId();
+                if (sinifId) {
+                    loadSinifIstatistikleri(sinifId);
+                    loadFilteredData(sinifId);
+                }
+            }
+
+            async function loadFilteredData(sinifId) {
+                try {
+                    // Filtrelenmiş verileri yükle
+                    const filterParams = new URLSearchParams({
+                        periyot: currentFilters.periyot
+                    });
+                    
+                    if (currentFilters.aktif) {
+                        filterParams.append('baslangic', currentFilters.baslangic);
+                        filterParams.append('bitis', currentFilters.bitis);
+                    }
+
+                    // Dersleri filtrele
+                    const dersResponse = await fetch(`/api/dersler?sinifId=${sinifId}&${filterParams}`);
+                    const dersler = await dersResponse.json();
+                    
+                    // Ders listesini güncelle
+                    updateDersListesi(dersler);
+                    
+                    // Test havuzlarını filtrele
+                    const havuzResponse = await fetch(`/api/test-havuzlari?${filterParams}`);
+                    const havuzlar = await havuzResponse.json();
+                    
+                    // Havuz sayısını güncelle
+                    updateHavuzCount(havuzlar.length);
+                    
+                } catch (error) {
+                    console.error('Filtrelenmiş veri yükleme hatası:', error);
+                }
+            }
+
+            function updateDersListesi(dersler) {
+                const dersListesi = document.getElementById('ders-listesi');
+                if (dersListesi && dersListesi.children.length > 0) {
+                    // Ders butonlarını güncelle
+                    Array.from(dersListesi.children).forEach((button, index) => {
+                        if (dersler[index]) {
+                            button.textContent = dersler[index].ad;
+                            button.style.background = currentFilters.aktif ? '#4CAF50' : '#2196F3';
+                        }
+                    });
+                }
+            }
+
+            function updateHavuzCount(count) {
+                const havuzElement = document.getElementById('istatistik-toplam-havuz');
+                if (havuzElement) {
+                    havuzElement.textContent = count;
+                    if (currentFilters.aktif) {
+                        havuzElement.style.color = '#4CAF50';
+                    } else {
+                        havuzElement.style.color = 'white';
+                    }
+                }
+            }
+
+            fetchAndDisplaySiniflar();
+        });
+    </script>
+</body>
+</html> 

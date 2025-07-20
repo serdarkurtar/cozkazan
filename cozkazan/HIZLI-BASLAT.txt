@@ -1,0 +1,31 @@
+🚀 COZKAZAN YONETIM PANELI - HIZLI BASLATMA 🚀
+
+===============================================
+
+📋 YONTEM 1: Batch Dosyası (En Kolay)
+1. start-yonetim.bat dosyasına çift tıkla
+2. Sunucu otomatik başlayacak
+3. Tarayıcıda http://localhost:3000/yonetim aç
+
+📋 YONTEM 2: PowerShell
+1. start-yonetim.ps1 dosyasına sağ tıkla
+2. "PowerShell ile çalıştır" seç
+3. Tarayıcıda http://localhost:3000/yonetim aç
+
+📋 YONTEM 3: Manuel
+1. Terminal aç
+2. cd backend
+3. node index.js
+4. Tarayıcıda http://localhost:3000/yonetim aç
+
+===============================================
+
+🔗 ANA LINKLER:
+• Yönetim Paneli: http://localhost:3000/yonetim
+• Admin Panel: http://localhost:3000/admin
+
+💡 IPUCU: 
+Batch dosyasını masaüstüne kopyala, 
+her seferinde çift tıklayarak başlat!
+
+=============================================== 

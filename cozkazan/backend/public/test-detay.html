@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Detayı - ÇözKazan</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .test-info {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+        }
+
+        .test-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .test-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .meta-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .meta-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .meta-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .questions-section {
+            padding: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .question-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .correct-answer {
+            background: #d4edda;
+            color: #155724;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .option {
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .option-label {
+            font-weight: 600;
+            margin-right: 10px;
+            color: #6c757d;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+        }
+
+        .error {
+            text-align: center;
+            padding: 50px;
+            color: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .test-meta {
+                grid-template-columns: 1fr;
+            }
+            
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-clipboard-list"></i> Test Detayı</h1>
+            <div>
+                <button class="btn btn-secondary" onclick="history.back()">
+                    <i class="fas fa-arrow-left"></i> Geri Dön
+                </button>
+                <button class="btn btn-warning" onclick="editTest()" id="edit-btn" style="display: none;">
+                    <i class="fas fa-edit"></i> Düzenle
+                </button>
+                <button class="btn btn-success" onclick="exportTest()" id="export-btn" style="display: none;">
+                    <i class="fas fa-download"></i> Dışa Aktar
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div id="loading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Test yükleniyor...
+            </div>
+
+            <div id="error" class="error" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Test yüklenirken bir hata oluştu.</h3>
+                <p>Lütfen tekrar deneyin veya geri dönün.</p>
+            </div>
+
+            <div id="content" style="display: none;">
+                <!-- Test Bilgileri -->
+                <div class="test-info">
+                    <div class="test-title" id="test-title">Test Adı</div>
+                    <div class="test-meta">
+                        <div class="meta-item">
+                            <div class="meta-label">Sınıf</div>
+                            <div class="meta-value" id="test-sinif">-</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Ders</div>
+                            <div class="meta-value" id="test-ders">-</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Konu</div>
+                            <div class="meta-value" id="test-konu">-</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Soru Sayısı</div>
+                            <div class="meta-value" id="test-question-count">0</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Durum</div>
+                            <div class="meta-value" id="test-status">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sorular -->
+                <div class="questions-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-question-circle"></i> Sorular
+                        </div>
+                        <div>
+                            <span id="question-count">0</span> soru
+                        </div>
+                    </div>
+                    <div id="questions-container">
+                        <!-- Sorular buraya dinamik olarak eklenecek -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTest = null;
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadTest();
+        });
+
+        // Test yükleme
+        async function loadTest() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const testId = urlParams.get('id');
+
+                if (!testId) {
+                    showError('Test ID bulunamadı.');
+                    return;
+                }
+
+                const response = await fetch(`/api/test-detay/${testId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Test yüklenemedi');
+                }
+
+                currentTest = await response.json();
+                renderTest();
+                
+            } catch (error) {
+                console.error('Test yükleme hatası:', error);
+                showError('Test yüklenirken bir hata oluştu.');
+            }
+        }
+
+        // Test render
+        function renderTest() {
+            if (!currentTest) return;
+
+            // Test bilgileri
+            document.getElementById('test-title').textContent = currentTest.testAdi || 'İsimsiz Test';
+            document.getElementById('test-sinif').textContent = currentTest.sinif?.ad || '-';
+            document.getElementById('test-ders').textContent = currentTest.ders?.ad || '-';
+            document.getElementById('test-konu').textContent = currentTest.konu?.ad || '-';
+            document.getElementById('test-question-count').textContent = currentTest.sorular?.length || 0;
+            document.getElementById('test-status').textContent = currentTest.aktif ? 'Aktif' : 'Pasif';
+
+            // Sorular
+            renderQuestions();
+
+            // Butonları göster
+            document.getElementById('edit-btn').style.display = 'inline-flex';
+            document.getElementById('export-btn').style.display = 'inline-flex';
+
+            // İçeriği göster
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        // Soruları render
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            const questions = currentTest.sorular || [];
+
+            document.getElementById('question-count').textContent = questions.length;
+
+            if (questions.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #6c757d;">
+                        <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 20px;"></i>
+                        <h3>Bu teste henüz soru eklenmemiş.</h3>
+                        <p>Düzenle butonuna tıklayarak soru ekleyebilirsiniz.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = questions.map((soru, index) => `
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="question-number">Soru ${index + 1}</div>
+                        <div class="correct-answer">Doğru Cevap: ${soru.dogruCevap}</div>
+                    </div>
+                    <div class="question-text">${soru.soruMetni}</div>
+                    <div class="options">
+                        ${Object.entries(soru.secenekler).map(([key, value]) => `
+                            <div class="option ${soru.dogruCevap === key ? 'correct' : ''}">
+                                <span class="option-label">${key}:</span>
+                                ${value}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Hata göster
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>${message}</h3>
+                <p>Lütfen tekrar deneyin veya geri dönün.</p>
+            `;
+        }
+
+        // Test düzenle
+        function editTest() {
+            if (!currentTest) return;
+            window.location.href = `/test-duzenle.html?id=${currentTest._id}`;
+        }
+
+        // Test dışa aktar
+        function exportTest() {
+            if (!currentTest) return;
+            
+            const testData = {
+                testAdi: currentTest.testAdi,
+                aciklama: currentTest.aciklama,
+                sinif: currentTest.sinif?.ad,
+                ders: currentTest.ders?.ad,
+                konu: currentTest.konu?.ad,
+                sorular: currentTest.sorular || []
+            };
+
+            const dataStr = JSON.stringify(testData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `${currentTest.testAdi || 'test'}.json`;
+            link.click();
+        }
+    </script>
+</body>
+</html> 

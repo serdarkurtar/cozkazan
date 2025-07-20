@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÇözKazan Test Yönetimi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        select, input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .clear-btn {
+            background-color: #6c757d;
+        }
+        .clear-btn:hover {
+            background-color: #545b62;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .status-active {
+            color: green;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: red;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 ÇözKazan Test Yönetimi</h1>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="search">🔍 Arama:</label>
+                <input type="text" id="search" placeholder="Açıklama ara...">
+            </div>
+            
+            <div class="filter-group">
+                <label for="sinif">📚 Sınıf:</label>
+                <select id="sinif">
+                    <option value="">Tümü</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="ders">📖 Ders:</label>
+                <select id="ders">
+                    <option value="">Tümü</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="konu">📝 Konu:</label>
+                <select id="konu">
+                    <option value="">Tümü</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="aktif">✅ Durum:</label>
+                <select id="aktif">
+                    <option value="">Tümü</option>
+                    <option value="true">Aktif</option>
+                    <option value="false">Pasif</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <button onclick="applyFilters()">🔍 Filtrele</button>
+                <button class="clear-btn" onclick="clearFilters()">🗑️ Temizle</button>
+            </div>
+        </div>
+        
+        <div id="results">
+            <div class="loading">Yükleniyor...</div>
+        </div>
+    </div>
+
+    <script>
+        let allTests = [];
+        let filters = {};
+
+        // Sayfa yüklendiğinde testleri getir
+        window.onload = function() {
+            loadTests();
+            loadFilterOptions();
+        };
+
+        // Testleri yükle
+        async function loadTests() {
+            try {
+                const response = await fetch('/api/testler');
+                allTests = await response.json();
+                displayTests(allTests);
+            } catch (error) {
+                console.error('Testler yüklenirken hata:', error);
+                document.getElementById('results').innerHTML = '<div class="no-data">Testler yüklenirken hata oluştu.</div>';
+            }
+        }
+
+        // Filtre seçeneklerini yükle
+        async function loadFilterOptions() {
+            try {
+                const response = await fetch('/api/testler/filters');
+                const filterData = await response.json();
+                
+                populateSelect('sinif', filterData.siniflar);
+                populateSelect('ders', filterData.dersler);
+                populateSelect('konu', filterData.konular);
+            } catch (error) {
+                console.error('Filtre seçenekleri yüklenirken hata:', error);
+            }
+        }
+
+        // Select elementini doldur
+        function populateSelect(selectId, options) {
+            const select = document.getElementById(selectId);
+            const currentValue = select.value;
+            
+            // Mevcut seçenekleri temizle (ilk seçenek hariç)
+            while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+            }
+            
+            // Yeni seçenekleri ekle
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                select.appendChild(optionElement);
+            });
+            
+            // Önceki değeri geri yükle
+            select.value = currentValue;
+        }
+
+        // Filtreleri uygula
+        function applyFilters() {
+            filters = {
+                search: document.getElementById('search').value,
+                sinif: document.getElementById('sinif').value,
+                ders: document.getElementById('ders').value,
+                konu: document.getElementById('konu').value,
+                aktif: document.getElementById('aktif').value
+            };
+
+            const filteredTests = allTests.filter(test => {
+                // Arama filtresi
+                if (filters.search && !test.aciklama?.toLowerCase().includes(filters.search.toLowerCase())) {
+                    return false;
+                }
+                
+                // Sınıf filtresi
+                if (filters.sinif && test.sinif !== filters.sinif) {
+                    return false;
+                }
+                
+                // Ders filtresi
+                if (filters.ders && test.ders !== filters.ders) {
+                    return false;
+                }
+                
+                // Konu filtresi
+                if (filters.konu && test.konu !== filters.konu) {
+                    return false;
+                }
+                
+                // Aktif filtresi
+                if (filters.aktif !== '' && test.aktif.toString() !== filters.aktif) {
+                    return false;
+                }
+                
+                return true;
+            });
+
+            displayTests(filteredTests);
+        }
+
+        // Filtreleri temizle
+        function clearFilters() {
+            document.getElementById('search').value = '';
+            document.getElementById('sinif').value = '';
+            document.getElementById('ders').value = '';
+            document.getElementById('konu').value = '';
+            document.getElementById('aktif').value = '';
+            
+            filters = {};
+            displayTests(allTests);
+        }
+
+        // Testleri görüntüle
+        function displayTests(tests) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (tests.length === 0) {
+                resultsDiv.innerHTML = '<div class="no-data">Filtre kriterlerine uygun test bulunamadı.</div>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Açıklama</th>
+                            <th>Sınıf</th>
+                            <th>Ders</th>
+                            <th>Konu</th>
+                            <th>Durum</th>
+                            <th>Oluşturulma</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            tests.forEach(test => {
+                const statusClass = test.aktif ? 'status-active' : 'status-inactive';
+                const statusText = test.aktif ? '✅ Aktif' : '❌ Pasif';
+                const createdAt = new Date(test.createdAt).toLocaleDateString('tr-TR');
+                
+                html += `
+                    <tr>
+                        <td>${test.aciklama || '-'}</td>
+                        <td>${test.sinif}</td>
+                        <td>${test.ders}</td>
+                        <td>${test.konu}</td>
+                        <td class="${statusClass}">${statusText}</td>
+                        <td>${createdAt}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            resultsDiv.innerHTML = html;
+        }
+
+        // Enter tuşu ile arama
+        document.getElementById('search').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+    </script>
+</body>
+</html> 

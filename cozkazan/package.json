@@ -1,0 +1,20 @@
+{
+  "name": "cozkazan",
+  "version": "1.0.0",
+  "description": "Bu proje Flutter ile geliştirilmiş bir çocuk eğitim uygulamasıdır.",
+  "main": "create-collections.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@directus/sdk": "^20.0.0",
+    "multer": "^2.0.1"
+  }
+}
