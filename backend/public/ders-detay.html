@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ders Detayları - ÇözKazan Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-2px);
+        }
+
+        .subject-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .topics-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .topic-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .topic-card:hover::before {
+            left: 100%;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .topic-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .topic-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .topic-stats {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .topic-stats div {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-button" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Geri Dön
+            </button>
+            <div class="subject-title" id="subject-title">Ders Detayları</div>
+            <div></div>
+        </div>
+
+        <!-- İstatistikler -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-number" id="konu-sayisi">0</div>
+                <div class="stat-label">Toplam Konu</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number" id="test-sayisi">0</div>
+                <div class="stat-label">Toplam Test</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-number" id="havuz-sayisi">0</div>
+                <div class="stat-label">Test Havuzu</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-number" id="ogrenci-sayisi">0</div>
+                <div class="stat-label">Aktif Öğrenci</div>
+            </div>
+        </div>
+
+        <!-- Konular Bölümü -->
+        <div class="topics-section">
+            <div class="section-title">
+                <i class="fas fa-list"></i>
+                Konular
+            </div>
+            <div id="topics-container">
+                <div class="loading">Konular yükleniyor...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Firebase yapılandırması
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqXqXqXqXqXqXqXqXqXqXqXqXqXqXqXqXq",
+            authDomain: "cozkazan-app.firebaseapp.com",
+            projectId: "cozkazan-app",
+            storageBucket: "cozkazan-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdefghijklmnop"
+        };
+
+        // Firebase'i başlat
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // URL'den ders bilgisini al
+        const urlParams = new URLSearchParams(window.location.search);
+        const sinifAdi = urlParams.get('sinif');
+        const dersAdi = urlParams.get('ders');
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            if (sinifAdi && dersAdi) {
+                loadSubjectDetails(sinifAdi, dersAdi);
+            } else {
+                showError('Ders bilgisi bulunamadı!');
+            }
+        });
+
+        // Ders detaylarını yükle
+        async function loadSubjectDetails(sinifAdi, dersAdi) {
+            try {
+                // Başlığı güncelle
+                document.getElementById('subject-title').textContent = `${sinifAdi} - ${dersAdi} Detayları`;
+
+                // İstatistikleri yükle
+                await loadStatistics(sinifAdi, dersAdi);
+
+                // Konuları yükle
+                await loadTopics(sinifAdi, dersAdi);
+
+            } catch (error) {
+                console.error('Ders detayları yüklenirken hata:', error);
+                showError('Ders detayları yüklenirken hata oluştu!');
+            }
+        }
+
+        // İstatistikleri yükle
+        async function loadStatistics(sinifAdi, dersAdi) {
+            try {
+                // Konu sayısı
+                const konularSnapshot = await db.collection('konular')
+                    .where('sinifAdi', '==', sinifAdi)
+                    .where('dersAdi', '==', dersAdi)
+                    .get();
+                document.getElementById('konu-sayisi').textContent = konularSnapshot.size;
+
+                // Test sayısı
+                const testlerSnapshot = await db.collection('testler')
+                    .where('sinifAdi', '==', sinifAdi)
+                    .where('dersAdi', '==', dersAdi)
+                    .get();
+                document.getElementById('test-sayisi').textContent = testlerSnapshot.size;
+
+                // Havuz sayısı
+                const havuzlarSnapshot = await db.collection('test_havuzlari')
+                    .where('sinifAdi', '==', sinifAdi)
+                    .where('dersAdi', '==', dersAdi)
+                    .get();
+                document.getElementById('havuz-sayisi').textContent = havuzlarSnapshot.size;
+
+                // Aktif öğrenci sayısı - gerçek veri
+                const ogrencilerSnapshot = await db.collection('ogrenciler')
+                    .where('sinifAdi', '==', sinifAdi)
+                    .where('aktif', '==', true)
+                    .get();
+                document.getElementById('ogrenci-sayisi').textContent = ogrencilerSnapshot.size;
+
+                console.log(`${sinifAdi} - ${dersAdi} istatistikleri:`, {
+                    konu: konularSnapshot.size,
+                    test: testlerSnapshot.size,
+                    havuz: havuzlarSnapshot.size,
+                    ogrenci: ogrencilerSnapshot.size
+                });
+
+            } catch (error) {
+                console.error('İstatistikler yüklenirken hata:', error);
+            }
+        }
+
+        // Konuları yükle
+        async function loadTopics(sinifAdi, dersAdi) {
+            try {
+                const konularSnapshot = await db.collection('konular')
+                    .where('sinifAdi', '==', sinifAdi)
+                    .where('dersAdi', '==', dersAdi)
+                    .get();
+
+                const topicsContainer = document.getElementById('topics-container');
+                
+                if (konularSnapshot.empty) {
+                    topicsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📝</div>
+                            <h3>Bu derste henüz konu bulunmamaktadır</h3>
+                            <p>Konu eklemek için admin paneline dönün</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let topicsHTML = '<div class="topics-grid">';
+                
+                // Her konu için test ve havuz sayılarını hesapla
+                for (const doc of konularSnapshot.docs) {
+                    const konu = doc.data();
+                    const konuAdi = konu.ad || konu.konuAdi || 'İsimsiz Konu';
+                    
+                    // Bu konunun test sayısını hesapla
+                    const testlerSnapshot = await db.collection('testler')
+                        .where('sinifAdi', '==', sinifAdi)
+                        .where('dersAdi', '==', dersAdi)
+                        .where('konuAdi', '==', konuAdi)
+                        .get();
+                    
+                    // Bu konunun havuz sayısını hesapla
+                    const havuzlarSnapshot = await db.collection('test_havuzlari')
+                        .where('sinifAdi', '==', sinifAdi)
+                        .where('dersAdi', '==', dersAdi)
+                        .where('konuAdi', '==', konuAdi)
+                        .get();
+                    
+                    // Konu için renk ve ikon seç
+                    const konuStyle = getKonuStyle(konuAdi, dersAdi);
+                    
+                    topicsHTML += `
+                        <div class="topic-card" onclick="openTopic('${sinifAdi}', '${dersAdi}', '${konuAdi}')" style="background: ${konuStyle.gradient};">
+                            <div class="topic-icon" style="color: ${konuStyle.iconColor};">${konuStyle.icon}</div>
+                            <div class="topic-name">${konuAdi}</div>
+                            <div class="topic-stats">
+                                <div>Testler: ${testlerSnapshot.size}</div>
+                                <div>Havuzlar: ${havuzlarSnapshot.size}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                topicsHTML += '</div>';
+                topicsContainer.innerHTML = topicsHTML;
+
+            } catch (error) {
+                console.error('Konular yüklenirken hata:', error);
+                document.getElementById('topics-container').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <h3>Konular yüklenirken hata oluştu</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Konu için stil seç
+        function getKonuStyle(konuAdi, dersAdi) {
+            // Matematik konuları
+            if (dersAdi === 'Matematik') {
+                const matematikStyles = {
+                    'Sayılar': { gradient: 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)', icon: '🔢', iconColor: '#fff' },
+                    'İşlemler': { gradient: 'linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 100%)', icon: '➕', iconColor: '#fff' },
+                    'Geometri': { gradient: 'linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%)', icon: '📐', iconColor: '#fff' },
+                    'Cebir': { gradient: 'linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)', icon: '📊', iconColor: '#fff' },
+                    'Veri': { gradient: 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)', icon: '📈', iconColor: '#fff' },
+                    'Ölçme': { gradient: 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)', icon: '📏', iconColor: '#fff' }
+                };
+                
+                for (const [key, style] of Object.entries(matematikStyles)) {
+                    if (konuAdi.includes(key)) return style;
+                }
+            }
+            
+            // Türkçe konuları
+            if (dersAdi === 'Türkçe') {
+                const turkceStyles = {
+                    'Atalarımızın İzleri': { gradient: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)', icon: '👴', iconColor: '#fff' },
+                    'Sorumluluklarımızın Farkındayız': { gradient: 'linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 100%)', icon: '🤝', iconColor: '#fff' },
+                    'Yeteneklerimizi Keşfediyoruz': { gradient: 'linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%)', icon: '⭐', iconColor: '#fff' },
+                    'Minik Kaşifler': { gradient: 'linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)', icon: '🔍', iconColor: '#fff' },
+                    'Yol Arkadaşımız Kitaplar': { gradient: 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)', icon: '📚', iconColor: '#fff' },
+                    'Güzel Davranışlarımız': { gradient: 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)', icon: '💝', iconColor: '#fff' },
+                    'Mustafa Kemal\'den Atatürk\'e': { gradient: 'linear-gradient(135deg, #e17055 0%, #d63031 100%)', icon: '🇹🇷', iconColor: '#fff' },
+                    'Çevremizdeki Yaşam': { gradient: 'linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)', icon: '🌱', iconColor: '#fff' },
+                    'Okuma': { gradient: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)', icon: '📖', iconColor: '#fff' },
+                    'Yazma': { gradient: 'linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 100%)', icon: '✍️', iconColor: '#fff' },
+                    'Dilbilgisi': { gradient: 'linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%)', icon: '📝', iconColor: '#fff' },
+                    'Konuşma': { gradient: 'linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)', icon: '🗣️', iconColor: '#fff' },
+                    'Dinleme': { gradient: 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)', icon: '👂', iconColor: '#fff' }
+                };
+                
+                // Tam eşleşme önce, sonra kısmi eşleşme
+                if (turkceStyles[konuAdi]) {
+                    return turkceStyles[konuAdi];
+                }
+                
+                for (const [key, style] of Object.entries(turkceStyles)) {
+                    if (konuAdi.includes(key)) return style;
+                }
+            }
+            
+            // Hayat Bilgisi konuları
+            if (dersAdi === 'Hayat Bilgisi') {
+                const hayatStyles = {
+                    'Aile': { gradient: 'linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 100%)', icon: '👨‍👩‍👧‍👦', iconColor: '#fff' },
+                    'Okul': { gradient: 'linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%)', icon: '🏫', iconColor: '#fff' },
+                    'Çevre': { gradient: 'linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)', icon: '🌳', iconColor: '#fff' },
+                    'Güvenlik': { gradient: 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)', icon: '🛡️', iconColor: '#fff' },
+                    'Sağlık': { gradient: 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)', icon: '🏥', iconColor: '#fff' }
+                };
+                
+                for (const [key, style] of Object.entries(hayatStyles)) {
+                    if (konuAdi.includes(key)) return style;
+                }
+            }
+            
+            // Fen Bilimleri konuları
+            if (dersAdi === 'Fen Bilimleri') {
+                const fenStyles = {
+                    'Madde': { gradient: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)', icon: '🧪', iconColor: '#fff' },
+                    'Enerji': { gradient: 'linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 100%)', icon: '⚡', iconColor: '#fff' },
+                    'Kuvvet': { gradient: 'linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%)', icon: '💪', iconColor: '#fff' },
+                    'Canlılar': { gradient: 'linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)', icon: '🌱', iconColor: '#fff' },
+                    'Dünya': { gradient: 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)', icon: '🌍', iconColor: '#fff' }
+                };
+                
+                for (const [key, style] of Object.entries(fenStyles)) {
+                    if (konuAdi.includes(key)) return style;
+                }
+            }
+            
+            // Varsayılan stil
+            const defaultStyles = [
+                { gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', icon: '📚', iconColor: '#fff' },
+                { gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', icon: '📖', iconColor: '#fff' },
+                { gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', icon: '📝', iconColor: '#fff' },
+                { gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', icon: '🎯', iconColor: '#fff' },
+                { gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', icon: '⭐', iconColor: '#fff' }
+            ];
+            
+            // Konu adına göre rastgele stil seç
+            const index = konuAdi.length % defaultStyles.length;
+            return defaultStyles[index];
+        }
+
+        // Konuya git
+        function openTopic(sinifAdi, dersAdi, konuAdi) {
+            // Konu detay sayfasına git
+            window.location.href = `konu-detay.html?sinif=${encodeURIComponent(sinifAdi)}&ders=${encodeURIComponent(dersAdi)}&konu=${encodeURIComponent(konuAdi)}`;
+        }
+
+        // Geri dön
+        function goBack() {
+            window.location.href = `sinif-detay.html?sinif=${encodeURIComponent(sinifAdi)}`;
+        }
+
+        // Hata göster
+        function showError(message) {
+            document.getElementById('topics-container').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">❌</div>
+                    <h3>Hata</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html> 

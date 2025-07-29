@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toplu Test Yükle - Basit</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- XLSX Kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .konu-adi {
+            font-size: 1.3rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            border: 3px dashed #667eea;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(102, 126, 234, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #764ba2;
+            background: rgba(118, 75, 162, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .upload-subtext {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-info {
+            background: #e8f5e8;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #28a745;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 150px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .manual-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .manual-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .question-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .remove-question {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: auto;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Toplu Test Yükle</h1>
+                <div class="konu-adi" id="konu-adi">Konu Bilgisi</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="upload-section" id="upload-section">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Excel dosyalarını buraya sürükleyin veya tıklayın</div>
+                <div class="upload-subtext">Desteklenen formatlar: .xlsx, .xls</div>
+                <input type="file" id="file-input" class="file-input" accept=".xlsx,.xls" multiple>
+                <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+                    📂 Dosya Seç
+                </button>
+            </div>
+
+            <div class="file-info" id="file-info">
+                <div class="file-name" id="file-name"></div>
+                <div class="file-size" id="file-size"></div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary upload-btn" id="upload-btn" style="display: none;">
+                    🚀 Yükle
+                </button>
+                <button class="btn btn-secondary" id="geri-don-btn">
+                    ← Geri Dön
+                </button>
+            </div>
+
+            <div class="manual-section">
+                <div class="manual-title">
+                    📝 Manuel Test Ekle
+                </div>
+                
+                <form id="manual-form">
+                    <div class="form-group">
+                        <label class="form-label">Test Adı</label>
+                        <input type="text" class="form-input" id="test-adi" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Test Açıklaması</label>
+                        <input type="text" class="form-input" id="test-aciklama">
+                    </div>
+                    
+                    <div id="questions-container">
+                        <!-- Sorular buraya eklenecek -->
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" id="add-question-btn">
+                        ➕ Soru Ekle
+                    </button>
+                    
+                    <button type="submit" class="btn btn-primary" style="margin-top: 20px;">
+                        💾 Testi Kaydet
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase yapılandırması
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4lhsmEH8OQWlkUfSR0a3jvY0_EHiXEiA",
+            authDomain: "cozkazan-app.firebaseapp.com",
+            projectId: "cozkazan-app",
+            storageBucket: "cozkazan-app.firebasestorage.app",
+            messagingSenderId: "846053857270",
+            appId: "1:846053857270:web:d2ba3637824325d5e519d7",
+            measurementId: "G-DZ0NNZHW7S"
+        };
+
+        // Firebase'i başlat
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // URL parametrelerini al
+        const urlParams = new URLSearchParams(window.location.search);
+        const sinifAdi = urlParams.get('sinifAdi');
+        const dersAdi = urlParams.get('dersAdi');
+        const konuAdi = urlParams.get('konuAdi');
+
+        // Konu adını göster
+        document.getElementById('konu-adi').textContent = `${sinifAdi} > ${dersAdi} > ${konuAdi}`;
+
+        // DOM elementleri
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-info');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const uploadBtn = document.getElementById('upload-btn');
+        const uploadSection = document.getElementById('upload-section');
+        const manualForm = document.getElementById('manual-form');
+        const questionsContainer = document.getElementById('questions-container');
+        const addQuestionBtn = document.getElementById('add-question-btn');
+
+        let selectedFiles = [];
+
+        // Dosya seçimi
+        fileInput.addEventListener('change', (e) => {
+            selectedFiles = Array.from(e.target.files);
+            
+            if (selectedFiles.length > 0) {
+                const file = selectedFiles[0];
+                fileName.textContent = `Seçilen dosya: ${file.name}`;
+                fileSize.textContent = `Toplam boyut: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                fileInfo.classList.add('show');
+                uploadBtn.style.display = 'flex';
+            } else {
+                fileInfo.classList.remove('show');
+                uploadBtn.style.display = 'none';
+            }
+        });
+
+        // Sürükle-bırak
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.style.borderColor = '#28a745';
+            uploadSection.style.background = 'rgba(40, 167, 69, 0.1)';
+        });
+
+        uploadSection.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadSection.style.borderColor = '#667eea';
+            uploadSection.style.background = 'rgba(102, 126, 234, 0.05)';
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.style.borderColor = '#667eea';
+            uploadSection.style.background = 'rgba(102, 126, 234, 0.05)';
+            
+            const files = Array.from(e.dataTransfer.files);
+            selectedFiles = files.filter(file => file.name.endsWith('.xlsx') || file.name.endsWith('.xls'));
+            
+            if (selectedFiles.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                const file = selectedFiles[0];
+                fileName.textContent = `Seçilen dosya: ${file.name}`;
+                fileSize.textContent = `Toplam boyut: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                fileInfo.classList.add('show');
+                uploadBtn.style.display = 'flex';
+            }
+        });
+
+        // Excel yükleme - Gerçek Excel okuma
+        uploadBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) {
+                alert('Lütfen bir dosya seçin.');
+                return;
+            }
+
+            const originalText = uploadBtn.textContent;
+            uploadBtn.textContent = 'Yükleniyor...';
+            uploadBtn.disabled = true;
+
+            try {
+                const file = selectedFiles[0];
+                const reader = new FileReader();
+                
+                reader.onload = async function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        
+                        // Excel dosyasını oku
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        
+                        // JSON'a çevir
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        // Soruları oluştur
+                        const sorular = [];
+                        
+                        // İlk satır başlık, 2. satırdan itibaren sorular
+                        for (let i = 1; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if (row && row.length >= 7) { // En az 7 sütun olmalı: Soru No, Soru Metni, A, B, C, D, Doğru Cevap
+                                const soru = {
+                                    soru: row[1] || `Soru ${i}`, // Soru Metni (2. sütun)
+                                    secenekler: [
+                                        row[2] || 'A) Seçenek A', // A seçeneği (3. sütun)
+                                        row[3] || 'B) Seçenek B', // B seçeneği (4. sütun)
+                                        row[4] || 'C) Seçenek C', // C seçeneği (5. sütun)
+                                        row[5] || 'D) Seçenek D'  // D seçeneği (6. sütun)
+                                    ],
+                                    dogruCevap: row[6] || 'a'    // Doğru Cevap (7. sütun)
+                                };
+                                sorular.push(soru);
+                            }
+                        }
+                        
+                        // Test verisi oluştur
+                        const testData = {
+                            ad: file.name.replace('.xlsx', '').replace('.xls', ''),
+                            aciklama: 'Excel dosyasından yüklenen test',
+                            sinifAdi: sinifAdi,
+                            dersAdi: dersAdi,
+                            konuAdi: konuAdi,
+                            sorular: sorular.length > 0 ? sorular : [
+                                {
+                                    soru: 'Excel dosyasından yüklenen örnek soru',
+                                    secenekler: ['A) Seçenek A', 'B) Seçenek B', 'C) Seçenek C', 'D) Seçenek D'],
+                                    dogruCevap: 'a'
+                                }
+                            ],
+                            olusturmaTarihi: new Date(),
+                            guncellemeTarihi: new Date()
+                        };
+
+                        // Test'i kaydet
+                        const testRef = await db.collection('testler').add(testData);
+                        const testId = testRef.id;
+                        
+                        // Soruları ayrı koleksiyona kaydet
+                        const soruBatch = db.batch();
+                        for (let i = 0; i < sorular.length; i++) {
+                            const soru = sorular[i];
+                            const soruRef = db.collection('sorular').doc();
+                            soruBatch.set(soruRef, {
+                                testId: testId,
+                                soru: soru.soru,
+                                secenekler: soru.secenekler, // Array olarak kaydet
+                                dogruCevap: soru.dogruCevap,
+                                sira: i + 1
+                            });
+                        }
+                        await soruBatch.commit();
+                        
+                        alert(`Test başarıyla yüklendi! ${sorular.length} soru eklendi.`);
+                        window.location.href = `admin-panel.html#test-yonetimi`;
+                        
+                    } catch (error) {
+                        console.error('Excel okuma hatası:', error);
+                        alert('Excel dosyası okunamadı. Basit test oluşturuluyor...');
+                        
+                        // Basit test oluştur
+                        const testData = {
+                            ad: file.name.replace('.xlsx', '').replace('.xls', ''),
+                            aciklama: 'Excel dosyasından yüklenen test',
+                            sinifAdi: sinifAdi,
+                            dersAdi: dersAdi,
+                            konuAdi: konuAdi,
+                            sorular: [
+                                {
+                                    soru: 'Excel dosyasından yüklenen örnek soru',
+                                    secenekler: ['A) Seçenek A', 'B) Seçenek B', 'C) Seçenek C', 'D) Seçenek D'],
+                                    dogruCevap: 'a'
+                                }
+                            ],
+                            olusturmaTarihi: new Date(),
+                            guncellemeTarihi: new Date()
+                        };
+
+                        await db.collection('testler').add(testData);
+                        alert('Basit test oluşturuldu!');
+                        window.location.href = `admin-panel.html#test-yonetimi`;
+                    } finally {
+                        uploadBtn.textContent = originalText;
+                        uploadBtn.disabled = false;
+                    }
+                };
+                
+                reader.readAsArrayBuffer(file);
+                
+            } catch (error) {
+                alert('Test yüklenirken hata oluştu: ' + error.message);
+                uploadBtn.textContent = originalText;
+                uploadBtn.disabled = false;
+            }
+        });
+
+        // Manuel test ekleme
+        let questionCounter = 1;
+
+        function addQuestion() {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-item';
+            questionDiv.innerHTML = `
+                <div class="question-header">
+                    <div class="question-number">Soru ${questionCounter}</div>
+                    <button type="button" class="remove-question" onclick="removeQuestion(this)">🗑️ Sil</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Soru</label>
+                    <input type="text" class="form-input" name="soru_${questionCounter}" required>
+                </div>
+                <div class="options-grid">
+                    <div class="form-group">
+                        <label class="form-label">A) Seçenek</label>
+                        <input type="text" class="form-input" name="secenek_a_${questionCounter}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">B) Seçenek</label>
+                        <input type="text" class="form-input" name="secenek_b_${questionCounter}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">C) Seçenek</label>
+                        <input type="text" class="form-input" name="secenek_c_${questionCounter}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">D) Seçenek</label>
+                        <input type="text" class="form-input" name="secenek_d_${questionCounter}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Doğru Cevap</label>
+                    <select class="form-input" name="dogru_cevap_${questionCounter}" required>
+                        <option value="">Seçiniz</option>
+                        <option value="a">A</option>
+                        <option value="b">B</option>
+                        <option value="c">C</option>
+                        <option value="d">D</option>
+                    </select>
+                </div>
+            `;
+            questionsContainer.appendChild(questionDiv);
+            questionCounter++;
+        }
+
+        function removeQuestion(button) {
+            button.closest('.question-item').remove();
+        }
+
+        // İlk soruyu ekle
+        addQuestion();
+
+        addQuestionBtn.addEventListener('click', addQuestion);
+
+        // Manuel form gönderimi
+        manualForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const testAdi = document.getElementById('test-adi').value;
+            const testAciklama = document.getElementById('test-aciklama').value;
+            
+            const questions = [];
+            const questionItems = questionsContainer.querySelectorAll('.question-item');
+            
+            questionItems.forEach((item, index) => {
+                const soru = item.querySelector(`[name="soru_${index + 1}"]`).value;
+                const secenekA = item.querySelector(`[name="secenek_a_${index + 1}"]`).value;
+                const secenekB = item.querySelector(`[name="secenek_b_${index + 1}"]`).value;
+                const secenekC = item.querySelector(`[name="secenek_c_${index + 1}"]`).value;
+                const secenekD = item.querySelector(`[name="secenek_d_${index + 1}"]`).value;
+                const dogruCevap = item.querySelector(`[name="dogru_cevap_${index + 1}"]`).value;
+                
+                questions.push({
+                    soru: soru,
+                    secenekler: [secenekA, secenekB, secenekC, secenekD],
+                    dogruCevap: dogruCevap
+                });
+            });
+
+            try {
+                // Firebase'e test kaydet
+                const testData = {
+                    ad: testAdi,
+                    aciklama: testAciklama,
+                    sinifAdi: sinifAdi,
+                    dersAdi: dersAdi,
+                    konuAdi: konuAdi,
+                    sorular: questions,
+                    olusturmaTarihi: new Date(),
+                    guncellemeTarihi: new Date()
+                };
+
+                await db.collection('testler').add(testData);
+                
+                alert('Test başarıyla kaydedildi!');
+                window.location.href = `admin-panel.html#test-yonetimi`;
+
+            } catch (error) {
+                alert('Test kaydedilirken hata oluştu: ' + error.message);
+            }
+        });
+
+        // Geri dön butonu
+        document.getElementById('geri-don-btn').addEventListener('click', () => {
+            window.location.href = `admin-panel.html#test-yonetimi`;
+        });
+    </script>
+</body>
+</html> 

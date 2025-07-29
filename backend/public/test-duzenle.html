@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Düzenle</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .question-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .remove-question {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .remove-question:hover {
+            background: #c82333;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 150px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: auto;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <a href="#" class="btn-back" onclick="goBack()">
+                    ← Geri Dön
+                </a>
+                <h1>Test Düzenle</h1>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <div>Test yükleniyor...</div>
+            </div>
+
+            <div id="edit-form" style="display: none;">
+                <div class="form-section">
+                    <div class="section-title">
+                        📝 Test Bilgileri
+            </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Test Adı</label>
+                        <input type="text" class="form-input" id="test-adi" required>
+            </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Test Açıklaması</label>
+                        <input type="text" class="form-input" id="test-aciklama">
+            </div>
+        </div>
+
+                <div class="form-section">
+                    <div class="section-title">
+                        ❓ Sorular
+                    </div>
+                    
+                    <div id="questions-container">
+                        <!-- Sorular buraya yüklenecek -->
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" id="add-question-btn">
+                        ➕ Soru Ekle
+                    </button>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-primary" id="save-btn">
+                        💾 Değişiklikleri Kaydet
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="goBack()">
+                        ❌ İptal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase yapılandırması
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4lhsmEH8OQWlkUfSR0a3jvY0_EHiXEiA",
+            authDomain: "cozkazan-app.firebaseapp.com",
+            projectId: "cozkazan-app",
+            storageBucket: "cozkazan-app.firebasestorage.app",
+            messagingSenderId: "846053857270",
+            appId: "1:846053857270:web:d2ba3637824325d5e519d7",
+            measurementId: "G-DZ0NNZHW7S"
+        };
+
+        // Firebase'i başlat
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // URL parametrelerini al
+        const urlParams = new URLSearchParams(window.location.search);
+        const testId = urlParams.get('id'); // 'testId' yerine 'id' kullan
+        const sinifAdi = urlParams.get('sinifAdi');
+        const dersAdi = urlParams.get('dersAdi');
+        const konuAdi = urlParams.get('konuAdi');
+
+        // Test ID kontrolü
+        if (!testId) {
+            alert('Test ID bulunamadı!');
+            window.location.href = 'admin-panel.html#test-yonetimi';
+        }
+
+        // DOM elementleri
+        const loading = document.getElementById('loading');
+        const editForm = document.getElementById('edit-form');
+        const testAdiInput = document.getElementById('test-adi');
+        const testAciklamaInput = document.getElementById('test-aciklama');
+        const questionsContainer = document.getElementById('questions-container');
+        const addQuestionBtn = document.getElementById('add-question-btn');
+        const saveBtn = document.getElementById('save-btn');
+
+        let questionCounter = 1;
+        let currentTest = null;
+
+        // Test verilerini yükle
+        async function loadTest() {
+            try {
+                const testDoc = await db.collection('testler').doc(testId).get();
+                
+                if (testDoc.exists) {
+                    currentTest = {
+                        _id: testDoc.id,
+                        ...testDoc.data()
+                    };
+                    
+                    // Form alanlarını doldur
+                    testAdiInput.value = currentTest.ad || '';
+                    testAciklamaInput.value = currentTest.aciklama || '';
+                    
+                    // Soruları yükle
+                    if (currentTest.sorular && currentTest.sorular.length > 0) {
+                        currentTest.sorular.forEach((soru, index) => {
+                            addQuestionToUI(soru, index + 1);
+                            questionCounter = index + 2;
+                        });
+                    } else {
+                        addQuestionToUI(null, 1);
+                    }
+                    
+                    // Formu göster
+                    loading.style.display = 'none';
+                    editForm.style.display = 'block';
+                    
+                } else {
+                    alert('Test bulunamadı!');
+                    goBack();
+                }
+                
+            } catch (error) {
+                console.error('Test yüklenirken hata:', error);
+                alert('Test yüklenirken hata oluştu: ' + error.message);
+                goBack();
+            }
+        }
+
+        // Soru UI'ını ekle
+        function addQuestionToUI(soru = null, number = null) {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-item';
+            const questionNum = number || questionCounter;
+            
+            questionDiv.innerHTML = `
+                <div class="question-header">
+                    <div class="question-number">Soru ${questionNum}</div>
+                    <button type="button" class="remove-question" onclick="removeQuestion(this)">🗑️ Sil</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Soru</label>
+                    <input type="text" class="form-input" name="soru_${questionNum}" value="${soru ? soru.soru : ''}" required>
+                </div>
+                <div class="options-grid">
+                    <div class="form-group">
+                        <label class="form-label">A) Seçenek</label>
+                        <input type="text" class="form-input" name="secenek_a_${questionNum}" value="${soru && soru.secenekler && soru.secenekler[0] ? soru.secenekler[0] : ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">B) Seçenek</label>
+                        <input type="text" class="form-input" name="secenek_b_${questionNum}" value="${soru && soru.secenekler && soru.secenekler[1] ? soru.secenekler[1] : ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">C) Seçenek</label>
+                        <input type="text" class="form-input" name="secenek_c_${questionNum}" value="${soru && soru.secenekler && soru.secenekler[2] ? soru.secenekler[2] : ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">D) Seçenek</label>
+                        <input type="text" class="form-input" name="secenek_d_${questionNum}" value="${soru && soru.secenekler && soru.secenekler[3] ? soru.secenekler[3] : ''}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Doğru Cevap</label>
+                    <select class="form-input" name="dogru_cevap_${questionNum}" required>
+                        <option value="">Seçiniz</option>
+                        <option value="a" ${soru && soru.dogruCevap === 'a' ? 'selected' : ''}>A</option>
+                        <option value="b" ${soru && soru.dogruCevap === 'b' ? 'selected' : ''}>B</option>
+                        <option value="c" ${soru && soru.dogruCevap === 'c' ? 'selected' : ''}>C</option>
+                        <option value="d" ${soru && soru.dogruCevap === 'd' ? 'selected' : ''}>D</option>
+                    </select>
+                </div>
+            `;
+            questionsContainer.appendChild(questionDiv);
+            questionCounter++;
+        }
+
+        // Soru ekleme
+        addQuestionBtn.addEventListener('click', () => {
+            addQuestionToUI();
+        });
+
+        // Soru silme
+        function removeQuestion(button) {
+            button.closest('.question-item').remove();
+        }
+
+        // Değişiklikleri kaydet
+        saveBtn.addEventListener('click', async () => {
+            const testAdi = testAdiInput.value.trim();
+            const testAciklama = testAciklamaInput.value.trim();
+            
+            if (!testAdi) {
+                alert('Lütfen test adını girin!');
+                return;
+            }
+            
+            const questions = [];
+            const questionItems = questionsContainer.querySelectorAll('.question-item');
+            
+            if (questionItems.length === 0) {
+                alert('En az bir soru eklemelisiniz!');
+                return;
+            }
+            
+            questionItems.forEach((item, index) => {
+                const soru = item.querySelector(`[name="soru_${index + 1}"]`).value.trim();
+                const secenekA = item.querySelector(`[name="secenek_a_${index + 1}"]`).value.trim();
+                const secenekB = item.querySelector(`[name="secenek_b_${index + 1}"]`).value.trim();
+                const secenekC = item.querySelector(`[name="secenek_c_${index + 1}"]`).value.trim();
+                const secenekD = item.querySelector(`[name="secenek_d_${index + 1}"]`).value.trim();
+                const dogruCevap = item.querySelector(`[name="dogru_cevap_${index + 1}"]`).value;
+                
+                if (!soru || !secenekA || !secenekB || !secenekC || !secenekD || !dogruCevap) {
+                    alert(`Soru ${index + 1} eksik bilgi içeriyor!`);
+                    return;
+                }
+                
+                questions.push({
+                    soru: soru,
+                    secenekler: [secenekA, secenekB, secenekC, secenekD],
+                    dogruCevap: dogruCevap
+                });
+            });
+
+            try {
+                saveBtn.textContent = 'Kaydediliyor...';
+                saveBtn.disabled = true;
+                
+                // Firebase'e güncelle
+                await db.collection('testler').doc(testId).update({
+                    ad: testAdi,
+                    aciklama: testAciklama,
+                    sorular: questions,
+                    guncellemeTarihi: new Date()
+                });
+                
+                // Başarılı mesajı göster
+                showMessage('Test başarıyla güncellendi!', 'success');
+                
+                // Geri dön
+                setTimeout(() => {
+                    if (sinifAdi && dersAdi && konuAdi) {
+                        // Konu detay sayfasına dön
+                        window.location.href = `konu-detay.html?sinif=${encodeURIComponent(sinifAdi)}&ders=${encodeURIComponent(dersAdi)}&konu=${encodeURIComponent(konuAdi)}`;
+                    } else {
+                        // Admin paneline dön
+                        window.location.href = 'admin-panel.html#test-yonetimi';
+                    }
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Test güncellenirken hata:', error);
+                alert('Test güncellenirken hata oluştu: ' + error.message);
+            } finally {
+                saveBtn.textContent = '💾 Değişiklikleri Kaydet';
+                saveBtn.disabled = false;
+            }
+        });
+
+        // Geri dön
+        function goBack() {
+            if (sinifAdi && dersAdi && konuAdi) {
+                // Konu detay sayfasına dön
+                window.location.href = `konu-detay.html?sinif=${encodeURIComponent(sinifAdi)}&ders=${encodeURIComponent(dersAdi)}&konu=${encodeURIComponent(konuAdi)}`;
+            } else {
+                // Admin paneline dön
+                window.location.href = 'admin-panel.html#test-yonetimi';
+            }
+        }
+
+        // Sayfa yüklendiğinde testi yükle
+        document.addEventListener('DOMContentLoaded', () => {
+            if (testId) {
+                loadTest();
+            } else {
+                alert('Test ID bulunamadı!');
+                goBack();
+            }
+        });
+    </script>
+</body>
+</html> 

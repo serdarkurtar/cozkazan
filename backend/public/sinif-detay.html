@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sınıf Detayları - ÇözKazan Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-2px);
+        }
+
+        .class-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .subjects-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .subject-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .subject-card:hover::before {
+            left: 100%;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .subject-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .subject-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subject-stats {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .subject-stats div {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-button" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Geri Dön
+            </button>
+            <div class="class-title" id="class-title">Sınıf Detayları</div>
+            <div></div>
+        </div>
+
+        <!-- İstatistikler -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-number" id="ders-sayisi">0</div>
+                <div class="stat-label">Toplam Ders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-number" id="konu-sayisi">0</div>
+                <div class="stat-label">Toplam Konu</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number" id="test-sayisi">0</div>
+                <div class="stat-label">Toplam Test</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-number" id="ogrenci-sayisi">0</div>
+                <div class="stat-label">Aktif Öğrenci</div>
+            </div>
+        </div>
+
+        <!-- Dersler Bölümü -->
+        <div class="subjects-section">
+            <div class="section-title">
+                <i class="fas fa-book"></i>
+                Dersler
+            </div>
+            <div id="subjects-container">
+                <div class="loading">Dersler yükleniyor...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Firebase yapılandırması
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqXqXqXqXqXqXqXqXqXqXqXqXqXqXqXqXq",
+            authDomain: "cozkazan-app.firebaseapp.com",
+            projectId: "cozkazan-app",
+            storageBucket: "cozkazan-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdefghijklmnop"
+        };
+
+        // Firebase'i başlat
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // URL'den sınıf bilgisini al
+        const urlParams = new URLSearchParams(window.location.search);
+        const sinifAdi = urlParams.get('sinif');
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            if (sinifAdi) {
+                loadClassDetails(sinifAdi);
+            } else {
+                showError('Sınıf bilgisi bulunamadı!');
+            }
+        });
+
+        // Sınıf detaylarını yükle
+        async function loadClassDetails(sinifAdi) {
+            try {
+                // Başlığı güncelle
+                document.getElementById('class-title').textContent = `${sinifAdi} Detayları`;
+
+                // İstatistikleri yükle
+                await loadStatistics(sinifAdi);
+
+                // Dersleri yükle
+                await loadSubjects(sinifAdi);
+
+            } catch (error) {
+                console.error('Sınıf detayları yüklenirken hata:', error);
+                showError('Sınıf detayları yüklenirken hata oluştu!');
+            }
+        }
+
+        // İstatistikleri yükle
+        async function loadStatistics(sinifAdi) {
+            try {
+                // Ders sayısı
+                const derslerSnapshot = await db.collection('dersler')
+                    .where('sinifAdi', '==', sinifAdi)
+                    .get();
+                document.getElementById('ders-sayisi').textContent = derslerSnapshot.size;
+
+                // Konu sayısı
+                const konularSnapshot = await db.collection('konular')
+                    .where('sinifAdi', '==', sinifAdi)
+                    .get();
+                document.getElementById('konu-sayisi').textContent = konularSnapshot.size;
+
+                // Test sayısı
+                const testlerSnapshot = await db.collection('testler')
+                    .where('sinifAdi', '==', sinifAdi)
+                    .get();
+                document.getElementById('test-sayisi').textContent = testlerSnapshot.size;
+
+                // Aktif öğrenci sayısı - gerçek veri
+                const ogrencilerSnapshot = await db.collection('ogrenciler')
+                    .where('sinifAdi', '==', sinifAdi)
+                    .where('aktif', '==', true)
+                    .get();
+                document.getElementById('ogrenci-sayisi').textContent = ogrencilerSnapshot.size;
+
+                console.log(`${sinifAdi} istatistikleri:`, {
+                    ders: derslerSnapshot.size,
+                    konu: konularSnapshot.size,
+                    test: testlerSnapshot.size,
+                    ogrenci: ogrencilerSnapshot.size
+                });
+
+            } catch (error) {
+                console.error('İstatistikler yüklenirken hata:', error);
+            }
+        }
+
+        // Dersleri yükle
+        async function loadSubjects(sinifAdi) {
+            try {
+                const derslerSnapshot = await db.collection('dersler')
+                    .where('sinifAdi', '==', sinifAdi)
+                    .get();
+
+                const subjectsContainer = document.getElementById('subjects-container');
+                
+                if (derslerSnapshot.empty) {
+                    subjectsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📚</div>
+                            <h3>Bu sınıfta henüz ders bulunmamaktadır</h3>
+                            <p>Ders eklemek için admin paneline dönün</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let subjectsHTML = '<div class="subjects-grid">';
+                
+                // Her ders için konu ve test sayılarını hesapla
+                for (const doc of derslerSnapshot.docs) {
+                    const ders = doc.data();
+                    const dersAdi = ders.ad || ders.dersAdi || 'İsimsiz Ders';
+                    
+                    // Bu dersin konu sayısını hesapla
+                    const konularSnapshot = await db.collection('konular')
+                        .where('sinifAdi', '==', sinifAdi)
+                        .where('dersAdi', '==', dersAdi)
+                        .get();
+                    
+                    // Bu dersin test sayısını hesapla
+                    const testlerSnapshot = await db.collection('testler')
+                        .where('sinifAdi', '==', sinifAdi)
+                        .where('dersAdi', '==', dersAdi)
+                        .get();
+                    
+                    // Ders için renk ve ikon seç
+                    const dersStyle = getDersStyle(dersAdi);
+                    
+                    subjectsHTML += `
+                        <div class="subject-card" onclick="openSubject('${sinifAdi}', '${dersAdi}')" style="background: ${dersStyle.gradient};">
+                            <div class="subject-icon" style="color: ${dersStyle.iconColor};">${dersStyle.icon}</div>
+                            <div class="subject-name">${dersAdi}</div>
+                            <div class="subject-stats">
+                                <div>Konular: ${konularSnapshot.size}</div>
+                                <div>Testler: ${testlerSnapshot.size}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                subjectsHTML += '</div>';
+                subjectsContainer.innerHTML = subjectsHTML;
+
+            } catch (error) {
+                console.error('Dersler yüklenirken hata:', error);
+                document.getElementById('subjects-container').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <h3>Dersler yüklenirken hata oluştu</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Ders için stil seç
+        function getDersStyle(dersAdi) {
+            const dersStyles = {
+                'Türkçe': {
+                    gradient: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
+                    icon: '📖',
+                    iconColor: '#fff'
+                },
+                'Matematik': {
+                    gradient: 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)',
+                    icon: '🔢',
+                    iconColor: '#fff'
+                },
+                'Hayat Bilgisi': {
+                    gradient: 'linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 100%)',
+                    icon: '🌍',
+                    iconColor: '#fff'
+                },
+                'Fen Bilimleri': {
+                    gradient: 'linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%)',
+                    icon: '🔬',
+                    iconColor: '#fff'
+                },
+                'Sosyal Bilgiler': {
+                    gradient: 'linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)',
+                    icon: '🗺️',
+                    iconColor: '#fff'
+                },
+                'İngilizce': {
+                    gradient: 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)',
+                    icon: '🇬🇧',
+                    iconColor: '#fff'
+                },
+                'Din Kültürü': {
+                    gradient: 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)',
+                    icon: '🕌',
+                    iconColor: '#fff'
+                },
+                'Beden Eğitimi': {
+                    gradient: 'linear-gradient(135deg, #e17055 0%, #d63031 100%)',
+                    icon: '⚽',
+                    iconColor: '#fff'
+                },
+                'Müzik': {
+                    gradient: 'linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)',
+                    icon: '🎵',
+                    iconColor: '#fff'
+                },
+                'Görsel Sanatlar': {
+                    gradient: 'linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%)',
+                    icon: '🎨',
+                    iconColor: '#fff'
+                }
+            };
+            
+            return dersStyles[dersAdi] || {
+                gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                icon: '📚',
+                iconColor: '#fff'
+            };
+        }
+
+        // Derse git
+        function openSubject(sinifAdi, dersAdi) {
+            // Ders detay sayfasına git
+            window.location.href = `ders-detay.html?sinif=${encodeURIComponent(sinifAdi)}&ders=${encodeURIComponent(dersAdi)}`;
+        }
+
+        // Geri dön
+        function goBack() {
+            window.location.href = 'admin-panel.html#test-yonetimi';
+        }
+
+        // Hata göster
+        function showError(message) {
+            document.getElementById('subjects-container').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">❌</div>
+                    <h3>Hata</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html> 
